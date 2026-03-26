@@ -51,6 +51,6 @@ public class AuthenticationController
         User newUser = new User(data.login(), encryptedPassword, data.role());
         this.repository.save(newUser);
         model.addAttribute("mensagem", "Usuário criado com sucesso");
-        return "login";
+        return "admin_page";
     }
 }
