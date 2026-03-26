@@ -3,6 +3,7 @@ package edu.ifsp.segurancainfo.projeto.domain.users;
 import jakarta.persistence.*;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -26,14 +27,15 @@ public class User implements UserDetails {
     private String id;
     private String login;
     private String password;
+    @Enumerated(EnumType.STRING)
     private UserRole role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (this.role == UserRole.ADMIN) {
-            return List.of(() -> "ROLE_ADMIN", () -> "ROLE_USER");
+            return List.of(new SimpleGrantedAuthority("ROLE_"+role.getRole().toUpperCase()));
         } else {
-            return List.of(() -> "ROLE_USER");
+            return List.of(new SimpleGrantedAuthority("ROLE_"+role.getRole().toUpperCase()));
         }
     }
 

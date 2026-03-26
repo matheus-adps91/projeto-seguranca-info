@@ -1,66 +1,56 @@
 package edu.ifsp.segurancainfo.projeto.controllers;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import edu.ifsp.segurancainfo.projeto.domain.DTO.AuthenticationDTO;
 import edu.ifsp.segurancainfo.projeto.domain.DTO.RegisterDTO;
 import edu.ifsp.segurancainfo.projeto.domain.users.User;
 import edu.ifsp.segurancainfo.projeto.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-
-@RestController
-public class AuthenticationController {
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
+@Controller
+public class AuthenticationController
+{
     @Autowired
     private UserRepository repository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    
-    @Value("${api.security.token.secret}")
-    private String secret;
+
+    @GetMapping("/login")
+    public String login(){
+        return "login";
+    }
+
+    @PostMapping("/logout")
+    public String logout(Model model){
+        model.addAttribute("mensagem", "Logout realizado com sucesso");
+        return "login";
+    }
+
+    @GetMapping("/cadastro")
+    public String register(){
+        return "create_user";
+    }
+
+    @GetMapping("/index")
+    public String homePage(Model model){
+        model.addAttribute("mensagem", "Bem-vindo à página inicial!");
+        return "index";
+    }
 
     @PostMapping("/cadastro")
-    public ResponseEntity register(@RequestBody RegisterDTO data){
-        if(this.repository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
-        
+    public String register(@ModelAttribute RegisterDTO data, Model model){
+        if(this.repository.findByLogin(data.login()) != null) {
+            model.addAttribute("mensagem", "Usuário já existe");
+            return "create_user";
+        }
         String encryptedPassword = passwordEncoder.encode(data.password());
         User newUser = new User(data.login(), encryptedPassword, data.role());
         this.repository.save(newUser);
-        return ResponseEntity.ok().build();
+        model.addAttribute("mensagem", "Usuário criado com sucesso");
+        return "login";
     }
-
-    @PostMapping("/login")
-    public ResponseEntity login(@RequestBody AuthenticationDTO data) {
-        var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
-        var auth = authenticationManager.authenticate(usernamePassword);
-        
-        var token = generateToken((User) auth.getPrincipal());
-        
-        return ResponseEntity.ok(new TokenDTO(token));
-    }
-
-    private String generateToken(User user) {
-        Algorithm algorithm = Algorithm.HMAC256(secret);
-        String token = JWT.create()
-                .withIssuer("auth0")
-                .withSubject(user.getUsername())
-                .withExpiresAt(Instant.now().plus(2, ChronoUnit.HOURS))
-                .sign(algorithm);
-        return token;
-    }
-
-    public record TokenDTO(String token) {}
 }
