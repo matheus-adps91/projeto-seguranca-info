@@ -2,6 +2,7 @@ package edu.ifsp.segurancainfo.projeto.services;
 
 import edu.ifsp.segurancainfo.projeto.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,7 +19,13 @@ public class AuthorizationService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByLogin(username);
+    public UserDetails loadUserByUsername(String username) {
+        if (username.isBlank()) {
+            throw new BadCredentialsException("Nome de usuário inválido");
+        }
+        String sanitizedUsername = username.trim().toLowerCase();
+        return userRepository.findByLogin(sanitizedUsername)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "Usuário não encontrado: " + sanitizedUsername));
     }
 }

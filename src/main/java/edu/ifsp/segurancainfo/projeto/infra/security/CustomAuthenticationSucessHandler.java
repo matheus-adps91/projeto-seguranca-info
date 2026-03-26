@@ -29,7 +29,7 @@ public class CustomAuthenticationSucessHandler implements AuthenticationSuccessH
         } else if (isUser) {
             response.sendRedirect("/usuarios");
         } else {
-            response.sendRedirect("/index"); // fallback
+            response.sendRedirect("/index");
         }
     }
 }

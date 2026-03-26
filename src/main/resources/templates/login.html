@@ -15,5 +15,12 @@
     <br><br>
     <button type="submit">Login</button>
 </form>
+    <br><br>
+    <div th:if="${session.LOGIN_ERROR}">
+        <span th:text="${session.LOGIN_ERROR}"></span>
+    </div>
+    <div th:if="${param.logout}">
+        Logout realizado com sucesso
+    </div>
 </body>
 </html>

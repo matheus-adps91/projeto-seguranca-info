@@ -2,8 +2,11 @@ package edu.ifsp.segurancainfo.projeto.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;
+import  edu.ifsp.segurancainfo.projeto.domain.users.User;
 
-public interface UserRepository extends JpaRepository<edu.ifsp.segurancainfo.projeto.domain.users.User, String> {
+import java.util.Optional;
 
-    UserDetails findByLogin(String login);
+public interface UserRepository extends JpaRepository<User, String> {
+
+    Optional<UserDetails> findByLogin(String login);
 }
