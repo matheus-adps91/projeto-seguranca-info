@@ -3,6 +3,7 @@ package edu.ifsp.segurancainfo.projeto.controllers;
 import edu.ifsp.segurancainfo.projeto.domain.DTO.RegisterDTO;
 import edu.ifsp.segurancainfo.projeto.domain.users.User;
 import edu.ifsp.segurancainfo.projeto.repositories.UserRepository;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -41,9 +42,14 @@ public class AuthenticationController
         return "index";
     }
 
+    @GetMapping("/acesso-negado")
+    public String accessDenied(){
+        return "forbidden_page";
+    }
+
     @PostMapping("/cadastro")
     public String register(@ModelAttribute RegisterDTO data, Model model){
-        if(this.repository.findByLogin(data.login()) != null) {
+        if(this.repository.findByLogin(data.login()).isPresent()) {
             model.addAttribute("mensagem", "Usuário já existe");
             return "create_user";
         }

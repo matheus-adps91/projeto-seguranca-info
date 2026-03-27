@@ -23,10 +23,11 @@ public class SecurityConfiguration {
             HttpSecurity httpSecurity) throws Exception
     {
         return httpSecurity
+                // Padrão do security é CSRF ativado
                 .sessionManagement(session -> session
-                        .invalidSessionUrl("/login?expired")
+                        .invalidSessionUrl("/login")
                         .maximumSessions(1)
-                        .expiredUrl("/login?expired")
+                        .expiredUrl("/login")
                 )
                 .redirectToHttps( https -> https
                         .requestMatchers(AnyRequestMatcher.INSTANCE)
@@ -54,6 +55,9 @@ public class SecurityConfiguration {
                         .logoutSuccessUrl("/login?logout")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
+                )
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(new CustomAccessDeniedHandler())
                 )
                 .build();
     }
